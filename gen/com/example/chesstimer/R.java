@@ -29,8 +29,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class id {
         public static final int button1=0x7f070000;
         public static final int button2=0x7f070001;
-        public static final int buttonPause=0x7f070003;
-        public static final int clockTimer=0x7f070002;
+        public static final int buttonPause=0x7f070002;
+        public static final int chronometer1=0x7f070003;
     }
     public static final class layout {
         public static final int activity_fullscreen=0x7f030000;
@@ -54,18 +54,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
             backward-compatibility can go here.
 
         
-
-        Base application theme for API 11+. This theme completely replaces
-        AppBaseTheme from res/values/styles.xml on API 11+ devices.
-
-    
- API 11 theme customizations can go here. 
-
-        Base application theme for API 14+. This theme completely replaces
-        AppBaseTheme from BOTH res/values/styles.xml and
-        res/values-v11/styles.xml on API 14+ devices.
-    
- API 14 theme customizations can go here. 
          */
         public static final int AppBaseTheme=0x7f060000;
         /**  Application theme. 
@@ -74,7 +62,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int AppTheme=0x7f060001;
         public static final int ButtonBar=0x7f060003;
         public static final int ButtonBarButton=0x7f060004;
-        public static final int FullscreenActionBarStyle=0x7f060005;
         public static final int FullscreenTheme=0x7f060002;
     }
     public static final class styleable {

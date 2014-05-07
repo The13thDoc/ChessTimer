@@ -70,7 +70,7 @@ public class FullscreenActivity extends Activity {
 
 		setContentView(R.layout.activity_fullscreen);
 
-		timerTextView = (TextView) findViewById(R.id.clockTimer);
+		timerTextView = (TextView) findViewById(R.id.chronometer1);
 		Button buttonOne = (Button) findViewById(R.id.button1);
 		Button buttonTwo = (Button) findViewById(R.id.button2);
 		Button buttonPause = (Button) findViewById(R.id.buttonPause);

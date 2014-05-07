@@ -29,14 +29,6 @@
         android:text="@string/button_2"
         android:textSize="20sp" />
 
-    <DigitalClock android:text="DigitalClock"
-        android:id="@+id/clockTimer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="44dp" />
-
     <Button
         android:id="@+id/buttonPause"
         style="?android:attr/buttonStyleSmall"
@@ -46,5 +38,14 @@
         android:layout_alignBottom="@+id/button1"
         android:layout_centerHorizontal="true"
         android:text="@string/button_pause" />
+
+    <Chronometer
+        android:id="@+id/chronometer1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"
+        android:format="MM:SS" />
 
 </RelativeLayout>
