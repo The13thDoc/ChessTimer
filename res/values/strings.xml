@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Chess Timer</string>
+    <string name="button_1">Player 1</string>
+    <string name="button_2">Player 2</string>
+    <string name="timer">Timer</string>
+    <string name="button_pause">Pause</string>
+
+</resources>

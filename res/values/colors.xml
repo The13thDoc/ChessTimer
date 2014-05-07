@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="black_overlay">#dcedcf</color>
+    <color name="button_unpressed">#4c8bff</color>
+    <color name="button_pressed">#5ca028</color>
+
+</resources>
