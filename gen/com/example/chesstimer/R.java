@@ -19,7 +19,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int buttonBarStyle=0x7f010000;
     }
     public static final class color {
-        public static final int black_overlay=0x7f040000;
+        public static final int back_overlay=0x7f040000;
+        public static final int black=0x7f040003;
         public static final int button_pressed=0x7f040002;
         public static final int button_unpressed=0x7f040001;
     }
