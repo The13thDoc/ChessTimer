@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -50,13 +51,16 @@ public class FullscreenActivity extends Activity {
 	private AlertDialog.Builder alert;
 	private EditText input;
 	private TimePicker timeInput;
+	
+	private int pressedColor = Color.DKGRAY;
+	private int unpressedColor = Color.BLUE;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_fullscreen);
-
+		
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
 			resetChronoTime();
@@ -72,6 +76,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button One
 			buttonOne = (Button) findViewById(R.id.button1);
+			buttonOne.setBackgroundColor(unpressedColor);
 
 			buttonOne.setOnClickListener(new View.OnClickListener() {
 
@@ -79,6 +84,7 @@ public class FullscreenActivity extends Activity {
 				public void onClick(View v) {
 					clicked(v);
 					buttonTwo.setEnabled(true);
+					buttonTwo.setBackgroundColor(unpressedColor);
 				}
 			});
 
@@ -93,6 +99,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button Two
 			buttonTwo = (Button) findViewById(R.id.button2);
+			buttonTwo.setBackgroundColor(unpressedColor);
 
 			buttonTwo.setOnClickListener(new View.OnClickListener() {
 
@@ -100,6 +107,7 @@ public class FullscreenActivity extends Activity {
 				public void onClick(View v) {
 					clicked(v);
 					buttonOne.setEnabled(true);
+					buttonOne.setBackgroundColor(unpressedColor);
 				}
 			});
 
@@ -121,6 +129,7 @@ public class FullscreenActivity extends Activity {
 	public void clicked(View v) {
 		Button b = (Button) v;
 		b.setEnabled(false);
+		b.setBackgroundColor(pressedColor);
 
 		resetChronoTime();
 		startClock();
