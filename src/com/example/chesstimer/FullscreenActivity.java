@@ -51,12 +51,16 @@ public class FullscreenActivity extends Activity {
 	private EditText input;
 	private TimePicker timeInput;
 
+	private boolean playerOneTurn = false;
+	private boolean playerTwoTurn = false;
+	private boolean gameOn = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_fullscreen);
-		
+
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
 			resetChronoTime();
@@ -72,14 +76,28 @@ public class FullscreenActivity extends Activity {
 
 		{// Button One
 			buttonOne = (Button) findViewById(R.id.button1);
-
 			buttonOne.setOnClickListener(new View.OnClickListener() {
 
 				@Override
 				public void onClick(View v) {
-					clicked(v);
-					buttonTwo.setEnabled(true);
-					buttonTwo.setBackgroundResource(R.color.button_unpressed);
+					if (!gameOn) {// start the game
+						gameOn = true;
+
+						// turn on player one
+						turnOnPlayer(buttonOne, playerOneTurn);
+
+						// turn off player two
+						turnOffPlayer(buttonTwo, playerTwoTurn);
+					} else { // game already started, player one complete
+						// turn off player one
+						turnOffPlayer(buttonOne, playerOneTurn);
+
+						// turn on player two
+						turnOnPlayer(buttonTwo, playerTwoTurn);
+					}
+					// reset time
+					resetChronoTime();
+					startClock();
 				}
 			});
 
@@ -100,9 +118,24 @@ public class FullscreenActivity extends Activity {
 
 				@Override
 				public void onClick(View v) {
-					clicked(v);
-					buttonOne.setEnabled(true);
-					buttonOne.setBackgroundResource(R.color.button_unpressed);
+					if (!gameOn) {// start the game
+						gameOn = true;
+
+						// turn on player two
+						turnOnPlayer(buttonTwo, playerTwoTurn);
+
+						// turn off player one
+						turnOffPlayer(buttonOne, playerOneTurn);
+					} else {
+						// turn off player two
+						turnOffPlayer(buttonTwo, playerTwoTurn);
+
+						// turn on player one
+						turnOnPlayer(buttonOne, playerOneTurn);
+					}
+					// reset time
+					resetChronoTime();
+					startClock();
 				}
 			});
 
@@ -114,6 +147,19 @@ public class FullscreenActivity extends Activity {
 				}
 			});
 		}
+	}
+
+	private void turnOnPlayer(Button button, boolean bool) {
+		bool = true;
+		button.setEnabled(true);
+		button.setBackgroundResource(R.color.button_unpressed);
+	}
+
+	private void turnOffPlayer(Button button, boolean bool) {
+		bool = false;
+		button.setEnabled(false);
+		button.setBackgroundResource(R.color.button_pressed);
+
 	}
 
 	/**
