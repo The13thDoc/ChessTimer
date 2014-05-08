@@ -4,13 +4,17 @@ import com.example.chesstimer.util.SystemUiHider;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.Toast;
 
 /**
@@ -34,13 +38,16 @@ public class FullscreenActivity extends Activity {
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
 	private Chronometer chronometer;
-//	private boolean isPaused = false;
+	// private boolean isPaused = false;
 	private Button buttonOne;
 	private Button buttonTwo;
-//	private Button buttonPause;
+	// private Button buttonPause;
 
 	private CountDownTimer timer;
 	private final long FIVE_MINUTES = Convert.getMilli(5);
+
+	private AlertDialog.Builder alert;
+	private EditText input;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,48 +60,82 @@ public class FullscreenActivity extends Activity {
 
 		buttonOne = (Button) findViewById(R.id.button1);
 		buttonTwo = (Button) findViewById(R.id.button2);
-//		buttonPause = (Button) findViewById(R.id.buttonPause);
-//		buttonPause.setEnabled(false);
 
-		buttonOne.setOnClickListener(new View.OnClickListener() {
+		{// Button One
+			buttonOne.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				clicked(v);
-				buttonTwo.setEnabled(true);
+				@Override
+				public void onClick(View v) {
+					clicked(v);
+					buttonTwo.setEnabled(true);
+				}
+			});
+
+			buttonOne.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					changeText(v);
+					return true;
+				}
+			});
+		}
+		{// Button Two
+			buttonTwo.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					clicked(v);
+					buttonOne.setEnabled(true);
+				}
+			});
+
+			buttonTwo.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					changeText(v);
+					return true;
+				}
+			});
+		}
+	}
+
+	/**
+	 * Change the label of the selected view.
+	 * 
+	 * @param v
+	 */
+	public void changeText(final View v) {
+		alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Name");
+		alert.setMessage("Name the player.");
+
+		// Set an EditText view to get user input
+		input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				String value = input.getText().toString();
+
+				if (v.getId() == R.id.button1) {
+					buttonOne.setText(value);
+				}
+
+				if (v.getId() == R.id.button2) {
+					buttonTwo.setText(value);
+				}
 			}
 		});
 
-		buttonTwo.setOnClickListener(new View.OnClickListener() {
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
 
-			@Override
-			public void onClick(View v) {
-				clicked(v);
-				buttonOne.setEnabled(true);
-			}
-		});
-
-//		buttonPause.setOnClickListener(new View.OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				Button b = (Button) v;
-//				if (!isPaused) { // IF UNPRESSED
-//					isPaused = true;
-//					try {
-//						timer.wait();
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//					b.setText("Resume");
-//				} else { // IF PRESSED
-//					isPaused = false;
-//					timer.notify();
-//					b.setText("Pause");
-//				}
-//			}
-//		});
+		alert.show();
 	}
 
 	/**
