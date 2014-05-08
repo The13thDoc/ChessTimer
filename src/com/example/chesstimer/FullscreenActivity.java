@@ -15,6 +15,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 /**
@@ -44,10 +45,11 @@ public class FullscreenActivity extends Activity {
 	// private Button buttonPause;
 
 	private CountDownTimer timer;
-	private final long FIVE_MINUTES = Convert.getMilli(5);
+	private long tickerTime = Convert.getMilli(5);
 
 	private AlertDialog.Builder alert;
 	private EditText input;
+	private TimePicker timeInput;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,13 +57,22 @@ public class FullscreenActivity extends Activity {
 
 		setContentView(R.layout.activity_fullscreen);
 
-		chronometer = (Chronometer) findViewById(R.id.chronometer1);
-		setChronometer();
+		{// Chronometer
+			chronometer = (Chronometer) findViewById(R.id.chronometer1);
+			resetChronoTime();
 
-		buttonOne = (Button) findViewById(R.id.button1);
-		buttonTwo = (Button) findViewById(R.id.button2);
+			chronometer.setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					changeTime(v);
+					return true;
+				}
+			});
+		}
 
 		{// Button One
+			buttonOne = (Button) findViewById(R.id.button1);
+
 			buttonOne.setOnClickListener(new View.OnClickListener() {
 
 				@Override
@@ -79,7 +90,10 @@ public class FullscreenActivity extends Activity {
 				}
 			});
 		}
+
 		{// Button Two
+			buttonTwo = (Button) findViewById(R.id.button2);
+
 			buttonTwo.setOnClickListener(new View.OnClickListener() {
 
 				@Override
@@ -97,6 +111,62 @@ public class FullscreenActivity extends Activity {
 				}
 			});
 		}
+	}
+
+	/**
+	 * Upon click of a "player" button.
+	 * 
+	 * @param v
+	 */
+	public void clicked(View v) {
+		Button b = (Button) v;
+		b.setEnabled(false);
+
+		resetChronoTime();
+		startClock();
+	}
+
+	/**
+	 * Change the count-down time.
+	 * 
+	 * @param v
+	 */
+	public void changeTime(final View v) {
+		alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Ticker");
+		alert.setMessage("Change the time per turn.");
+
+		// Set an EditText view to get user input
+		timeInput = new TimePicker(this);
+		timeInput.setIs24HourView(true); // removes AM/PM and allows 0
+		timeInput.setCurrentHour(0);
+		timeInput.setCurrentMinute(0);
+
+		alert.setView(timeInput);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				int minute = timeInput.getCurrentHour();
+				int second = timeInput.getCurrentMinute();
+
+				if (v.getId() == R.id.chronometer1) {
+					setTime((Convert.getMilli(minute))
+							+ (Convert.getMilliFromSeconds(second)));
+					resetChronoTime();
+					startClock();
+				}
+			}
+		});
+
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
+
+		alert.show();
 	}
 
 	/**
@@ -139,63 +209,45 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
-	 * Set the properties of the Chronometer.
+	 * Set the time.
+	 * 
+	 * @param time
 	 */
-	private void setChronometer() {
-		long millis = FIVE_MINUTES;
-		int seconds = (int) (millis / 1000);
+	private void setTime(long time) {
+		tickerTime = time;
+	}
+
+	/**
+	 * Get time.
+	 * 
+	 * @return
+	 */
+	private long getTime() {
+		return tickerTime;
+	}
+
+	/**
+	 * Reset the Chronometer with the set ticker time.
+	 */
+	private void resetChronoTime() {
+
+		int seconds = (int) (getTime() / 1000);
 		int minutes = seconds / 60;
 		seconds = seconds % 60;
 
-		chronometer.setFormat(String.format("%d:%02d", minutes, seconds));
+		chronometer.setText(String.format("%d:%02d", minutes, seconds));
 
 		resetClock();
 	}
-
-	/**
-	 * Upon click of a "player" button.
-	 * 
-	 * @param v
-	 */
-	public void clicked(View v) {
-		Button b = (Button) v;
-		b.setEnabled(false);
-
-		stopClock();
-		resetClock();
-		startClock();
-	}
-
-	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
-
-		// Trigger the initial hide() shortly after the activity has been
-		// created, to briefly hint to the user that UI controls
-		// are available.
-		delayedHide(100);
-	}
-
-	/**
-	 * Touch listener to use for in-layout UI controls to delay hiding the
-	 * system UI. This is to prevent the jarring behavior of controls going away
-	 * while interacting with activity UI.
-	 */
-	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-		@Override
-		public boolean onTouch(View view, MotionEvent motionEvent) {
-			if (AUTO_HIDE) {
-				delayedHide(AUTO_HIDE_DELAY_MILLIS);
-			}
-			return false;
-		}
-	};
 
 	/**
 	 * Reset the clock to the specified time.
 	 */
 	public void resetClock() {
-		timer = new CountDownTimer(FIVE_MINUTES, 1000) {
+		if (timer != null) {
+			stopClock();
+		}
+		timer = new CountDownTimer(getTime(), 1000) {
 
 			public void onTick(long millisUntilFinished) {
 				showElapsedTime(millisUntilFinished);
@@ -234,42 +286,31 @@ public class FullscreenActivity extends Activity {
 		chronometer.setText(String.format("%d:%02d", minutes, seconds));
 	}
 
-	{
-		// View.OnClickListener mStartListener = new OnClickListener() {
-		// public void onClick(View v) {
-		// int stoppedMilliseconds = 0;
-		//
-		// String chronoText = chronometer.getText().toString();
-		// String array[] = chronoText.split(":");
-		// if (array.length == 2) {
-		// stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 1000
-		// + Integer.parseInt(array[1]) * 1000;
-		// } else if (array.length == 3) {
-		// stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 60
-		// * 1000 + Integer.parseInt(array[1]) * 60 * 1000
-		// + Integer.parseInt(array[2]) * 1000;
-		// }
-		//
-		// chronometer.setBase(SystemClock.elapsedRealtime()
-		// - stoppedMilliseconds);
-		// chronometer.start();
-		// }
-		// };
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
 
-		// View.OnClickListener mStopListener = new OnClickListener() {
-		// public void onClick(View v) {
-		// chronometer.stop();
-		// showElapsedTime();
-		// }
-		// };
-
-		// View.OnClickListener mResetListener = new OnClickListener() {
-		// public void onClick(View v) {
-		// chronometer.setBase(SystemClock.elapsedRealtime());
-		// showElapsedTime();
-		// }
-		// };
+		// Trigger the initial hide() shortly after the activity has been
+		// created, to briefly hint to the user that UI controls
+		// are available.
+		delayedHide(100);
 	}
+
+	/**
+	 * Touch listener to use for in-layout UI controls to delay hiding the
+	 * system UI. This is to prevent the jarring behavior of controls going away
+	 * while interacting with activity UI.
+	 */
+	View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
+		@Override
+		public boolean onTouch(View view, MotionEvent motionEvent) {
+			if (AUTO_HIDE) {
+				delayedHide(AUTO_HIDE_DELAY_MILLIS);
+			}
+			return false;
+		}
+	};
+
 	Handler mHideHandler = new Handler();
 	Runnable mHideRunnable = new Runnable() {
 		@Override
@@ -303,5 +344,8 @@ public class FullscreenActivity extends Activity {
 			return minutes * 60 * 1000;
 		}
 
+		public static int getMilliFromSeconds(int seconds) {
+			return seconds * 1000;
+		}
 	}
 }
