@@ -147,14 +147,17 @@ public class FullscreenActivity extends Activity {
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
+				stopClock();
+				
 				int minute = timeInput.getCurrentHour();
 				int second = timeInput.getCurrentMinute();
 
 				if (v.getId() == R.id.chronometer1) {
 					setTime((Convert.getMilli(minute))
 							+ (Convert.getMilliFromSeconds(second)));
+					buttonOne.setEnabled(true);
+					buttonTwo.setEnabled(true);
 					resetChronoTime();
-					startClock();
 				}
 			}
 		});
@@ -254,7 +257,8 @@ public class FullscreenActivity extends Activity {
 			}
 
 			public void onFinish() {
-				Toast.makeText(FullscreenActivity.this, "Done!",
+				showElapsedTime(0);
+				Toast.makeText(FullscreenActivity.this, "Time's Up!",
 						Toast.LENGTH_SHORT).show();
 			}
 		};
