@@ -5,14 +5,13 @@ import com.example.chesstimer.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -40,6 +39,9 @@ public class FullscreenActivity extends Activity {
 	private Button buttonTwo;
 	private Button buttonPause;
 
+	private CountDownTimer timer;
+	private final long FIVE_MINUTES = Convert.getMilli(5);
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -47,18 +49,18 @@ public class FullscreenActivity extends Activity {
 		setContentView(R.layout.activity_fullscreen);
 
 		chronometer = (Chronometer) findViewById(R.id.chronometer1);
+		setChronometer();
+
 		buttonOne = (Button) findViewById(R.id.button1);
 		buttonTwo = (Button) findViewById(R.id.button2);
 		buttonPause = (Button) findViewById(R.id.buttonPause);
-
-		chronometer.setText("5:00");
+		buttonPause.setEnabled(false);
 
 		buttonOne.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				clicked(v);
-				// buttonTwo.setBackgroundColor(R.color.button_unpressed);
 				buttonTwo.setEnabled(true);
 			}
 		});
@@ -68,7 +70,6 @@ public class FullscreenActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				clicked(v);
-				// buttonOne.setBackgroundColor(R.color.button_unpressed);
 				buttonOne.setEnabled(true);
 			}
 		});
@@ -80,20 +81,34 @@ public class FullscreenActivity extends Activity {
 				Button b = (Button) v;
 				if (!isPaused) { // IF UNPRESSED
 					isPaused = true;
-					stopClock();
+					try {
+						timer.wait();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					b.setText("Resume");
-					// b.setBackgroundColor(R.color.button_pressed);
-					// timerHandler.removeCallbacks(timerRunnable);
 				} else { // IF PRESSED
 					isPaused = false;
-					startClock();
+					timer.notify();
 					b.setText("Pause");
-					// b.setBackgroundColor(R.color.button_unpressed);
-					// startTime = System.currentTimeMillis();
-					// timerHandler.postDelayed(timerRunnable, 0);
 				}
 			}
 		});
+	}
+
+	/**
+	 * Set the properties of the Chronometer.
+	 */
+	private void setChronometer() {
+		long millis = FIVE_MINUTES;
+		int seconds = (int) (millis / 1000);
+		int minutes = seconds / 60;
+		seconds = seconds % 60;
+
+		chronometer.setFormat(String.format("%d:%02d", minutes, seconds));
+
+		resetClock();
 	}
 
 	/**
@@ -104,20 +119,11 @@ public class FullscreenActivity extends Activity {
 	public void clicked(View v) {
 		Button b = (Button) v;
 		b.setEnabled(false);
-		// b.setBackgroundColor(R.color.button_pressed);
 
 		stopClock();
 		resetClock();
 		startClock();
 	}
-
-	// @Override
-	// public void onPause() {
-	// super.onPause();
-	// timerHandler.removeCallbacks(timerRunnable);
-	// Button b = (Button) findViewById(R.id.buttonPause);
-	// b.setText("Resume");
-	// }
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -148,100 +154,87 @@ public class FullscreenActivity extends Activity {
 	 * Reset the clock to the specified time.
 	 */
 	public void resetClock() {
-		chronometer.setBase(SystemClock.elapsedRealtime());
-		chronometer.setText(String.format("%d:%02d", 5, 0));
-		showElapsedTime();
+		timer = new CountDownTimer(FIVE_MINUTES, 1000) {
+
+			public void onTick(long millisUntilFinished) {
+				showElapsedTime(millisUntilFinished);
+			}
+
+			public void onFinish() {
+				Toast.makeText(FullscreenActivity.this, "Done!",
+						Toast.LENGTH_SHORT).show();
+			}
+		};
 	}
 
 	/**
 	 * Start the count-down.
 	 */
 	public void startClock() {
-		int stoppedMilliseconds = 0;
-
-		String chronoText = chronometer.getText().toString();
-		String array[] = chronoText.split(":");
-		if (array.length == 2) {
-			stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 1000
-					+ Integer.parseInt(array[1]) * 1000;
-		} else if (array.length == 3) {
-			stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 60 * 1000
-					+ Integer.parseInt(array[1]) * 60 * 1000
-					+ Integer.parseInt(array[2]) * 1000;
-		}
-
-		chronometer
-				.setBase(SystemClock.elapsedRealtime() - stoppedMilliseconds);
-		chronometer.start();
-		showElapsedTime();
+		timer.start();
 	}
 
 	/**
-	 * Pause/stop the clock.
+	 * Cancel the count-down.
 	 */
 	public void stopClock() {
-		chronometer.stop();
-		showElapsedTime();
+		timer.cancel();
 	}
 
-	private void showElapsedTime() {
-		long elapsedMillis = SystemClock.elapsedRealtime()
-				- chronometer.getBase();
-		int seconds = (int) (elapsedMillis / 1000);
+	/**
+	 * Display the current time to the clock.
+	 * 
+	 * @param milli
+	 */
+	private void showElapsedTime(long milli) {
+		int seconds = (int) (milli / 1000);
 		int minutes = seconds / 60;
 		seconds = seconds % 60;
 		chronometer.setText(String.format("%d:%02d", minutes, seconds));
 	}
 
-	View.OnClickListener mStartListener = new OnClickListener() {
-		public void onClick(View v) {
-			int stoppedMilliseconds = 0;
+	{
+		// View.OnClickListener mStartListener = new OnClickListener() {
+		// public void onClick(View v) {
+		// int stoppedMilliseconds = 0;
+		//
+		// String chronoText = chronometer.getText().toString();
+		// String array[] = chronoText.split(":");
+		// if (array.length == 2) {
+		// stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 1000
+		// + Integer.parseInt(array[1]) * 1000;
+		// } else if (array.length == 3) {
+		// stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 60
+		// * 1000 + Integer.parseInt(array[1]) * 60 * 1000
+		// + Integer.parseInt(array[2]) * 1000;
+		// }
+		//
+		// chronometer.setBase(SystemClock.elapsedRealtime()
+		// - stoppedMilliseconds);
+		// chronometer.start();
+		// }
+		// };
 
-			String chronoText = chronometer.getText().toString();
-			String array[] = chronoText.split(":");
-			if (array.length == 2) {
-				stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 1000
-						+ Integer.parseInt(array[1]) * 1000;
-			} else if (array.length == 3) {
-				stoppedMilliseconds = Integer.parseInt(array[0]) * 60 * 60
-						* 1000 + Integer.parseInt(array[1]) * 60 * 1000
-						+ Integer.parseInt(array[2]) * 1000;
-			}
+		// View.OnClickListener mStopListener = new OnClickListener() {
+		// public void onClick(View v) {
+		// chronometer.stop();
+		// showElapsedTime();
+		// }
+		// };
 
-			chronometer.setBase(SystemClock.elapsedRealtime()
-					- stoppedMilliseconds);
-			chronometer.start();
-		}
-	};
-
-	View.OnClickListener mStopListener = new OnClickListener() {
-		public void onClick(View v) {
-			chronometer.stop();
-			showElapsedTime();
-		}
-	};
-
-	View.OnClickListener mResetListener = new OnClickListener() {
-		public void onClick(View v) {
-			chronometer.setBase(SystemClock.elapsedRealtime());
-			showElapsedTime();
-		}
-	};
+		// View.OnClickListener mResetListener = new OnClickListener() {
+		// public void onClick(View v) {
+		// chronometer.setBase(SystemClock.elapsedRealtime());
+		// showElapsedTime();
+		// }
+		// };
+	}
 	Handler mHideHandler = new Handler();
 	Runnable mHideRunnable = new Runnable() {
 		@Override
 		public void run() {
 			// mSystemUiHider.hide();
-
-			// long millis = System.currentTimeMillis() - startTime;
-			// int seconds = (int) (millis / 1000);
-			// int minutes = seconds / 60;
-			// seconds = seconds % 60;
-
-			int seconds = 0;
-			int minutes = 5;
-
-			// timerHandler.postDelayed(this, 500);
+			mHideHandler.postDelayed(this, 500);
 		}
 	};
 
@@ -252,5 +245,22 @@ public class FullscreenActivity extends Activity {
 	private void delayedHide(int delayMillis) {
 		mHideHandler.removeCallbacks(mHideRunnable);
 		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+
+	/**
+	 * Methods to convert between units of time.
+	 * 
+	 */
+	private static class Convert {
+		/**
+		 * Returns an int representing the given minute(s) in milliseconds.
+		 * 
+		 * @param minutes
+		 * @return int - milliseconds
+		 */
+		public static int getMilli(int minutes) {
+			return minutes * 60 * 1000;
+		}
+
 	}
 }

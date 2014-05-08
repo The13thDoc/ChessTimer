@@ -46,7 +46,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="60dp"
-        android:format="MM:SS"
-        android:textColor="@color/black" />
+        android:format="@string/default_time"
+        android:textColor="@color/black"
+        android:textSize="@dimen/timerSize" />
 
 </RelativeLayout>
