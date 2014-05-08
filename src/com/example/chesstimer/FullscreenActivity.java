@@ -34,10 +34,10 @@ public class FullscreenActivity extends Activity {
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
 	private Chronometer chronometer;
-	private boolean isPaused = false;
+//	private boolean isPaused = false;
 	private Button buttonOne;
 	private Button buttonTwo;
-	private Button buttonPause;
+//	private Button buttonPause;
 
 	private CountDownTimer timer;
 	private final long FIVE_MINUTES = Convert.getMilli(5);
@@ -53,8 +53,8 @@ public class FullscreenActivity extends Activity {
 
 		buttonOne = (Button) findViewById(R.id.button1);
 		buttonTwo = (Button) findViewById(R.id.button2);
-		buttonPause = (Button) findViewById(R.id.buttonPause);
-		buttonPause.setEnabled(false);
+//		buttonPause = (Button) findViewById(R.id.buttonPause);
+//		buttonPause.setEnabled(false);
 
 		buttonOne.setOnClickListener(new View.OnClickListener() {
 
@@ -74,27 +74,27 @@ public class FullscreenActivity extends Activity {
 			}
 		});
 
-		buttonPause.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				Button b = (Button) v;
-				if (!isPaused) { // IF UNPRESSED
-					isPaused = true;
-					try {
-						timer.wait();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					b.setText("Resume");
-				} else { // IF PRESSED
-					isPaused = false;
-					timer.notify();
-					b.setText("Pause");
-				}
-			}
-		});
+//		buttonPause.setOnClickListener(new View.OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				Button b = (Button) v;
+//				if (!isPaused) { // IF UNPRESSED
+//					isPaused = true;
+//					try {
+//						timer.wait();
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					b.setText("Resume");
+//				} else { // IF PRESSED
+//					isPaused = false;
+//					timer.notify();
+//					b.setText("Pause");
+//				}
+//			}
+//		});
 	}
 
 	/**

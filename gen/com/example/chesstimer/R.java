@@ -25,6 +25,9 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int button_unpressed=0x7f040001;
     }
     public static final class dimen {
+        public static final int button_height=0x7f050002;
+        public static final int button_text_size=0x7f050003;
+        public static final int button_width=0x7f050001;
         public static final int timerSize=0x7f050000;
     }
     public static final class drawable {
@@ -33,8 +36,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class id {
         public static final int button1=0x7f080000;
         public static final int button2=0x7f080001;
-        public static final int buttonPause=0x7f080002;
-        public static final int chronometer1=0x7f080003;
+        public static final int chronometer1=0x7f080002;
     }
     public static final class layout {
         public static final int activity_fullscreen=0x7f030000;

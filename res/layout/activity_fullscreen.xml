@@ -7,37 +7,27 @@
 
     <Button
         android:id="@+id/button1"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="50dp"
         android:layout_marginLeft="30dp"
         android:background="@color/button_unpressed"
         android:text="@string/button_1"
-        android:textSize="20sp" />
+        android:textSize="@dimen/button_text_size" />
 
     <Button
         android:id="@+id/button2"
-        android:layout_width="150dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="@dimen/button_height"
         android:layout_alignBaseline="@+id/button1"
         android:layout_alignBottom="@+id/button1"
         android:layout_alignParentRight="true"
         android:layout_marginRight="30dp"
         android:background="@color/button_unpressed"
         android:text="@string/button_2"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/buttonPause"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/button1"
-        android:layout_alignBottom="@+id/button1"
-        android:layout_centerHorizontal="true"
-        android:text="@string/button_pause" />
+        android:textSize="@dimen/button_text_size" />
 
     <Chronometer
         android:id="@+id/chronometer1"
