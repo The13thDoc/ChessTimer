@@ -15,7 +15,6 @@
         android:layout_marginBottom="50dp"
         android:layout_marginLeft="30dp"
         android:background="@color/button_unpressed"
-        android:text="@string/button_1"
         android:textSize="@dimen/button_text_size" />
 
     <Button
@@ -27,7 +26,6 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="30dp"
         android:background="@color/button_unpressed"
-        android:text="@string/button_2"
         android:textSize="@dimen/button_text_size" />
 
     <Chronometer

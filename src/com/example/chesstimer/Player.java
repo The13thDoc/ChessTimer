@@ -2,7 +2,9 @@ package com.example.chesstimer;
 
 import java.util.ArrayList;
 
-import com.example.chesstimer.util.Convert;
+import android.widget.Button;
+
+import com.example.chesstimer.util.Util;
 
 /**
  * Record times, turns used, and other information belonging to a player.
@@ -13,6 +15,7 @@ public class Player {
 	private String name;
 	private int turns;
 	private ArrayList<Long> turnTime;
+	private boolean isMoving;
 
 	/**
 	 * Constructor.
@@ -58,6 +61,24 @@ public class Player {
 	}
 
 	/**
+	 * Set whether or not it is the player's turn.
+	 * 
+	 * @param isMoving
+	 */
+	public void setMoving(boolean isMoving) {
+		this.isMoving = isMoving;
+	}
+
+	/**
+	 * Get whether or not hte player is moving.
+	 * 
+	 * @return bool - isMoving
+	 */
+	public boolean isMoving() {
+		return this.isMoving;
+	}
+
+	/**
 	 * Add the time elapsed for the turn taken.
 	 * 
 	 * @param timeTaken
@@ -73,7 +94,7 @@ public class Player {
 	 * @return Long - time (in milliseconds)
 	 */
 	public Long getMoveTimeAsMilliseconds(int N) {
-		return this.turnTime.get(N);
+		return this.turnTime.get(N - 1);
 	}
 
 	/**
@@ -83,7 +104,7 @@ public class Player {
 	 * @return Integer - time (in seconds)
 	 */
 	public Integer getMoveTimeInSeconds(int N) {
-		return Convert.getSecondsFromMilli(this.turnTime.get(N));
+		return Util.getSecondsFromMilli(this.turnTime.get(N - 1));
 	}
 
 	/**
@@ -93,6 +114,51 @@ public class Player {
 	 * @return String - time as (MM:SS)
 	 */
 	public String getMoveTimeAsString(int N) {
-		return Convert.getTime(this.turnTime.get(N));
+		return Util.getTime(this.turnTime.get(N - 1));
+	}
+
+	/**
+	 * Enable the player upon the opponent completing his/her turn.
+	 * 
+	 * @param button
+	 */
+	public void turnOn(Button button) {
+		setMoving(true);
+		button.setEnabled(true);
+		button.setBackgroundResource(R.color.button_unpressed);
+	}
+
+	/**
+	 * Disable the player upon completing his/her move.
+	 * 
+	 * @param button
+	 * @return TODO
+	 */
+	public String turnOff(Button button, long timeTaken) {
+		setMoving(false);
+		button.setEnabled(false);
+		button.setBackgroundResource(R.color.button_pressed);
+
+		// Upon completing, record that turn's stats
+		addTurn();
+		addTurnTime(timeTaken);
+
+		// System.out.println("Turns: " + turns + "\nTime: "
+		//	+ getMoveTimeAsString(turns));
+
+		return "Turns: " + turns + "\nTime: "
+				+ getMoveTimeAsString(turns);
+
+	}
+
+	/**
+	 * Disable the player upon completing his/her move.
+	 * 
+	 * @param button
+	 */
+	public void turnOff(Button button) {
+		setMoving(false);
+		button.setEnabled(false);
+		button.setBackgroundResource(R.color.button_pressed);
 	}
 }

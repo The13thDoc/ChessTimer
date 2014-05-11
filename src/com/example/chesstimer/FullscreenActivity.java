@@ -41,10 +41,8 @@ public class FullscreenActivity extends Activity {
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
 	private Chronometer chronometer;
-	// private boolean isPaused = false;
 	private Button buttonOne;
 	private Button buttonTwo;
-	// private Button buttonPause;
 
 	private CountDownTimer timer;
 	private long tickerTime = Convert.getMilli(5);
@@ -53,15 +51,21 @@ public class FullscreenActivity extends Activity {
 	private EditText input;
 	private TimePicker timeInput;
 
-	private boolean playerOneTurn = false;
-	private boolean playerTwoTurn = false;
 	private boolean gameOn = false;
+
+	private Player playerOne;
+	private Player playerTwo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_fullscreen);
+
+		{// Players
+			playerOne = new Player("Player 1");
+			playerTwo = new Player("Player 2");
+		}
 
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
@@ -78,6 +82,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button One
 			buttonOne = (Button) findViewById(R.id.button1);
+			buttonOne.setText(playerOne.getName());
 			buttonOne.setOnClickListener(new View.OnClickListener() {
 
 				@Override
@@ -86,16 +91,16 @@ public class FullscreenActivity extends Activity {
 						gameOn = true;
 
 						// turn on player one
-						turnOnPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOn(buttonOne);
 
 						// turn off player two
-						turnOffPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOff(buttonTwo);
 					} else { // game already started, player one complete
 						// turn off player one
-						turnOffPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOff(buttonOne, getTime());
 
 						// turn on player two
-						turnOnPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOn(buttonTwo);
 					}
 					// reset time
 					resetChronoTime();
@@ -114,6 +119,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button Two
 			buttonTwo = (Button) findViewById(R.id.button2);
+			buttonTwo.setText(playerTwo.getName());
 			buttonTwo.setBackgroundResource(R.color.button_unpressed);
 
 			buttonTwo.setOnClickListener(new View.OnClickListener() {
@@ -124,16 +130,16 @@ public class FullscreenActivity extends Activity {
 						gameOn = true;
 
 						// turn on player two
-						turnOnPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOn(buttonTwo);
 
 						// turn off player one
-						turnOffPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOff(buttonOne);
 					} else {
 						// turn off player two
-						turnOffPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOff(buttonTwo, getTime());
 
 						// turn on player one
-						turnOnPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOn(buttonOne);
 					}
 					// reset time
 					resetChronoTime();
@@ -149,19 +155,6 @@ public class FullscreenActivity extends Activity {
 				}
 			});
 		}
-	}
-
-	private void turnOnPlayer(Button button, boolean bool) {
-		bool = true;
-		button.setEnabled(true);
-		button.setBackgroundResource(R.color.button_unpressed);
-	}
-
-	private void turnOffPlayer(Button button, boolean bool) {
-		bool = false;
-		button.setEnabled(false);
-		button.setBackgroundResource(R.color.button_pressed);
-
 	}
 
 	/**
@@ -273,9 +266,9 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
-	 * Get time.
+	 * Get the last time recorded on the count-down.
 	 * 
-	 * @return
+	 * @return long - time in milliseconds
 	 */
 	private long getTime() {
 		return tickerTime;
@@ -404,5 +397,15 @@ public class FullscreenActivity extends Activity {
 		public static int getMilliFromSeconds(int seconds) {
 			return seconds * 1000;
 		}
+	}
+
+	/**
+	 * Display a message to the screen.
+	 * 
+	 * @param message
+	 */
+	private void alert(String message) {
+		Toast.makeText(FullscreenActivity.this, message, Toast.LENGTH_SHORT)
+				.show();
 	}
 }

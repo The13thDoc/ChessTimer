@@ -6,7 +6,7 @@ import java.util.Locale;
  * Methods to convert between units of time.
  * 
  */
-public class Convert {
+public class Util {
 
 	/**
 	 * Returns an int representing the given minute(s) in milliseconds.
