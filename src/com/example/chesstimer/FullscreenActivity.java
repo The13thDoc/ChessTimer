@@ -1,5 +1,7 @@
 package com.example.chesstimer;
 
+import java.util.Locale;
+
 import com.example.chesstimer.util.SystemUiHider;
 
 import android.annotation.SuppressLint;
@@ -198,7 +200,7 @@ public class FullscreenActivity extends Activity {
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
 				stopClock();
-				
+
 				int minute = timeInput.getCurrentHour();
 				int second = timeInput.getCurrentMinute();
 
@@ -288,7 +290,8 @@ public class FullscreenActivity extends Activity {
 		int minutes = seconds / 60;
 		seconds = seconds % 60;
 
-		chronometer.setText(String.format("%d:%02d", minutes, seconds));
+		chronometer.setText(String.format(Locale.US, "%d:%02d", minutes,
+				seconds));
 
 		resetClock();
 	}
