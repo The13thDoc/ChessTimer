@@ -42,10 +42,8 @@ public class FullscreenActivity extends Activity {
 	private static final int AUTO_HIDE_DELAY_MILLIS = 3000;
 
 	private Chronometer chronometer;
-	// private boolean isPaused = false;
 	private Button buttonOne;
 	private Button buttonTwo;
-	// private Button buttonPause;
 
 	private CountDownTimer timer;
 	private long tickerTime = Convert.getMilli(5);
@@ -56,15 +54,21 @@ public class FullscreenActivity extends Activity {
 	private EditText input;
 	private TimePicker timeInput;
 
-	private boolean playerOneTurn = false;
-	private boolean playerTwoTurn = false;
 	private boolean gameOn = false;
+
+	private Player playerOne;
+	private Player playerTwo;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_fullscreen);
+
+		{// Players
+			playerOne = new Player("Player 1");
+			playerTwo = new Player("Player 2");
+		}
 
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
@@ -82,6 +86,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button One
 			buttonOne = (Button) findViewById(R.id.button1);
+			buttonOne.setText(playerOne.getName());
 			buttonOne.setOnClickListener(new View.OnClickListener() {
 
 				@Override
@@ -90,16 +95,16 @@ public class FullscreenActivity extends Activity {
 						gameOn = true;
 
 						// turn on player one
-						turnOnPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOn(buttonOne);
 
 						// turn off player two
-						turnOffPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOff(buttonTwo);
 					} else { // game already started, player one complete
 						// turn off player one
-						turnOffPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOff(buttonOne, getTimeTaken());
 
 						// turn on player two
-						turnOnPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOn(buttonTwo);
 					}
 					// reset time
 					resetAndStartClock();
@@ -118,6 +123,7 @@ public class FullscreenActivity extends Activity {
 
 		{// Button Two
 			buttonTwo = (Button) findViewById(R.id.button2);
+			buttonTwo.setText(playerTwo.getName());
 			buttonTwo.setBackgroundResource(R.color.button_unpressed);
 
 			buttonTwo.setOnClickListener(new View.OnClickListener() {
@@ -128,16 +134,16 @@ public class FullscreenActivity extends Activity {
 						gameOn = true;
 
 						// turn on player two
-						turnOnPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOn(buttonTwo);
 
 						// turn off player one
-						turnOffPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOff(buttonOne);
 					} else {
 						// turn off player two
-						turnOffPlayer(buttonTwo, playerTwoTurn);
+						playerTwo.turnOff(buttonTwo, getTimeTaken());
 
 						// turn on player one
-						turnOnPlayer(buttonOne, playerOneTurn);
+						playerOne.turnOn(buttonOne);
 					}
 					// reset time
 					resetAndStartClock();
@@ -155,19 +161,6 @@ public class FullscreenActivity extends Activity {
 		}
 	}
 
-	private void turnOnPlayer(Button button, boolean bool) {
-		bool = true;
-		button.setEnabled(true);
-		button.setBackgroundResource(R.color.button_unpressed);
-	}
-
-	private void turnOffPlayer(Button button, boolean bool) {
-		bool = false;
-		button.setEnabled(false);
-		button.setBackgroundResource(R.color.button_pressed);
-
-	}
-
 	/**
 	 * Upon click of a "player" button.
 	 * 
@@ -182,12 +175,22 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
+	 * Get the total time take to make the move. Start time minus the current
+	 * time.
+	 * 
+	 * @return long - milliseconds
+	 */
+	private long getTimeTaken() {
+		return getStartTime() - getCurrentTime();
+	}
+
+	/**
 	 * Change the count-down time.
 	 * 
 	 * @param v
 	 */
 	public void changeTime(final View v) {
-		Log.d("timer", "Changing time...");
+		Log.d("timer-log", "Changing time...");
 		alert = new AlertDialog.Builder(this);
 
 		alert.setTitle("Ticker");
@@ -245,11 +248,13 @@ public class FullscreenActivity extends Activity {
 				String value = input.getText().toString();
 
 				if (v.getId() == R.id.button1) {
-					buttonOne.setText(value);
+					playerOne.setName(value);
+					buttonOne.setText(playerOne.getName());
 				}
 
 				if (v.getId() == R.id.button2) {
-					buttonTwo.setText(value);
+					playerTwo.setName(value);
+					buttonTwo.setText(playerTwo.getName());
 				}
 				resumeClock();
 			}
@@ -277,7 +282,7 @@ public class FullscreenActivity extends Activity {
 	/**
 	 * Get time.
 	 * 
-	 * @return
+	 * @return long - time in milliseconds
 	 */
 	private long getStartTime() {
 		return tickerTime;
@@ -324,8 +329,8 @@ public class FullscreenActivity extends Activity {
 		};
 
 		showElapsedTime(getCurrentTime());
-		Log.d("timer", "Clock reset");
-		Log.d("timer", "Time: " + getAsString(getCurrentTime()));
+		Log.d("timer-log", "Clock reset");
+		Log.d("timer-log", "Time: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -351,8 +356,8 @@ public class FullscreenActivity extends Activity {
 		};
 
 		showElapsedTime(getCurrentTime());
-		Log.d("timer", "Clock reset");
-		Log.d("timer", "Time: " + getAsString(getCurrentTime()));
+		Log.d("timer-log", "Clock reset");
+		Log.d("timer-log", "Time: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -385,8 +390,8 @@ public class FullscreenActivity extends Activity {
 	private void start() {
 		timer.start();
 		isStopped = false;
-		Log.d("timer", "Clock started.");
-		Log.d("timer", "Time starting: " + getAsString(getCurrentTime()));
+		Log.d("timer-log", "Clock started.");
+		Log.d("timer-log", "Time starting: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -395,8 +400,8 @@ public class FullscreenActivity extends Activity {
 	public void stopClock() {
 		timer.cancel();
 		isStopped = true;
-		Log.d("timer", "Clock stopped.");
-		Log.d("timer", "Time left: " + getAsString(getCurrentTime()));
+		Log.d("timer-log", "Clock stopped.");
+		Log.d("timer-log", "Time left: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -436,6 +441,15 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
+	 * Schedules a call to hide() in [delay] milliseconds, canceling any
+	 * previously scheduled calls.
+	 */
+	private void delayedHide(int delayMillis) {
+		mHideHandler.removeCallbacks(mHideRunnable);
+		mHideHandler.postDelayed(mHideRunnable, delayMillis);
+	}
+
+	/**
 	 * Touch listener to use for in-layout UI controls to delay hiding the
 	 * system UI. This is to prevent the jarring behavior of controls going away
 	 * while interacting with activity UI.
@@ -460,15 +474,6 @@ public class FullscreenActivity extends Activity {
 	};
 
 	/**
-	 * Schedules a call to hide() in [delay] milliseconds, canceling any
-	 * previously scheduled calls.
-	 */
-	private void delayedHide(int delayMillis) {
-		mHideHandler.removeCallbacks(mHideRunnable);
-		mHideHandler.postDelayed(mHideRunnable, delayMillis);
-	}
-
-	/**
 	 * Methods to convert between units of time.
 	 * 
 	 */
@@ -487,4 +492,14 @@ public class FullscreenActivity extends Activity {
 			return seconds * 1000;
 		}
 	}
+
+	// /**
+	// * Display a message to the screen.
+	// *
+	// * @param message
+	// */
+	// private void alert(String message) {
+	// Toast.makeText(FullscreenActivity.this, message, Toast.LENGTH_SHORT)
+	// .show();
+	// }
 }
