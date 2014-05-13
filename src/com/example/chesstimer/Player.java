@@ -2,6 +2,7 @@ package com.example.chesstimer;
 
 import java.util.ArrayList;
 
+import android.util.Log;
 import android.widget.Button;
 
 import com.example.chesstimer.util.Util;
@@ -143,11 +144,10 @@ public class Player {
 		addTurn();
 		addTurnTime(timeTaken);
 
-		// System.out.println("Turns: " + turns + "\nTime: "
-		//	+ getMoveTimeAsString(turns));
+		Log.d("play-stats", "Turns: " + turns + "\nTime: "
+				+ getMoveTimeAsString(turns));
 
-		return "Turns: " + turns + "\nTime: "
-				+ getMoveTimeAsString(turns);
+		return "Turns: " + turns + "\nTime: " + getMoveTimeAsString(turns);
 
 	}
 
