@@ -102,8 +102,7 @@ public class FullscreenActivity extends Activity {
 						turnOnPlayer(buttonTwo, playerTwoTurn);
 					}
 					// reset time
-					resetChronoTime();
-					startClock();
+					resetAndStartClock();
 				}
 			});
 
@@ -141,8 +140,7 @@ public class FullscreenActivity extends Activity {
 						turnOnPlayer(buttonOne, playerOneTurn);
 					}
 					// reset time
-					resetChronoTime();
-					startClock();
+					resetAndStartClock();
 				}
 			});
 
