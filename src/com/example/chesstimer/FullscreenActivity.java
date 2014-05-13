@@ -1,5 +1,7 @@
 package com.example.chesstimer;
 
+import java.util.Locale;
+
 import com.example.chesstimer.util.SystemUiHider;
 
 import android.annotation.SuppressLint;
@@ -9,6 +11,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -46,6 +49,8 @@ public class FullscreenActivity extends Activity {
 
 	private CountDownTimer timer;
 	private long tickerTime = Convert.getMilli(5);
+	private long remainingTime = tickerTime;
+	private boolean isStopped = true;
 
 	private AlertDialog.Builder alert;
 	private EditText input;
@@ -63,11 +68,12 @@ public class FullscreenActivity extends Activity {
 
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
-			resetChronoTime();
+			chronometer.setText(getAsString(getStartTime()));
 
 			chronometer.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
+					stopClock();
 					changeTime(v);
 					return true;
 				}
@@ -104,6 +110,7 @@ public class FullscreenActivity extends Activity {
 			buttonOne.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
+					stopClock();
 					changeText(v);
 					return true;
 				}
@@ -142,6 +149,7 @@ public class FullscreenActivity extends Activity {
 			buttonTwo.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
+					stopClock();
 					changeText(v);
 					return true;
 				}
@@ -172,8 +180,7 @@ public class FullscreenActivity extends Activity {
 		b.setEnabled(false);
 		b.setBackgroundResource(R.color.button_pressed);
 
-		resetChronoTime();
-		startClock();
+		resetAndStartClock();
 	}
 
 	/**
@@ -182,6 +189,7 @@ public class FullscreenActivity extends Activity {
 	 * @param v
 	 */
 	public void changeTime(final View v) {
+		Log.d("timer", "Changing time...");
 		alert = new AlertDialog.Builder(this);
 
 		alert.setTitle("Ticker");
@@ -197,17 +205,14 @@ public class FullscreenActivity extends Activity {
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int whichButton) {
-				stopClock();
-				
 				int minute = timeInput.getCurrentHour();
 				int second = timeInput.getCurrentMinute();
 
 				if (v.getId() == R.id.chronometer1) {
-					setTime((Convert.getMilli(minute))
+					setStartTime((Convert.getMilli(minute))
 							+ (Convert.getMilliFromSeconds(second)));
-					buttonOne.setEnabled(true);
-					buttonTwo.setEnabled(true);
-					resetChronoTime();
+
+					resetAndStartClock();
 				}
 			}
 		});
@@ -215,7 +220,7 @@ public class FullscreenActivity extends Activity {
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
+						resumeClock();
 					}
 				});
 
@@ -248,13 +253,14 @@ public class FullscreenActivity extends Activity {
 				if (v.getId() == R.id.button2) {
 					buttonTwo.setText(value);
 				}
+				resumeClock();
 			}
 		});
 
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
+						resumeClock();
 					}
 				});
 
@@ -266,7 +272,7 @@ public class FullscreenActivity extends Activity {
 	 * 
 	 * @param time
 	 */
-	private void setTime(long time) {
+	private void setStartTime(long time) {
 		tickerTime = time;
 	}
 
@@ -275,34 +281,40 @@ public class FullscreenActivity extends Activity {
 	 * 
 	 * @return
 	 */
-	private long getTime() {
+	private long getStartTime() {
 		return tickerTime;
 	}
 
 	/**
-	 * Reset the Chronometer with the set ticker time.
+	 * Set the time remaining.
+	 * 
+	 * @param time
 	 */
-	private void resetChronoTime() {
+	private void setCurrentTime(long time) {
+		remainingTime = time;
+	}
 
-		int seconds = (int) (getTime() / 1000);
-		int minutes = seconds / 60;
-		seconds = seconds % 60;
-
-		chronometer.setText(String.format("%d:%02d", minutes, seconds));
-
-		resetClock();
+	/**
+	 * Return the time remaining.
+	 * 
+	 * @return
+	 */
+	private long getCurrentTime() {
+		return this.remainingTime;
 	}
 
 	/**
 	 * Reset the clock to the specified time.
 	 */
 	public void resetClock() {
-		if (timer != null) {
+		if (timer != null || !isStopped) {
 			stopClock();
 		}
-		timer = new CountDownTimer(getTime(), 1000) {
+		setCurrentTime(getStartTime());
+		timer = new CountDownTimer(getCurrentTime(), 1000) {
 
 			public void onTick(long millisUntilFinished) {
+				setCurrentTime(millisUntilFinished);
 				showElapsedTime(millisUntilFinished);
 			}
 
@@ -312,13 +324,71 @@ public class FullscreenActivity extends Activity {
 						Toast.LENGTH_SHORT).show();
 			}
 		};
+
+		showElapsedTime(getCurrentTime());
+		Log.d("timer", "Clock reset");
+		Log.d("timer", "Time: " + getAsString(getCurrentTime()));
+	}
+
+	/**
+	 * Reset the clock to the specified time.
+	 */
+	public void resetClock(long time) {
+		if (timer != null || !isStopped) {
+			stopClock();
+		}
+		setCurrentTime(time);
+		timer = new CountDownTimer(time, 1000) {
+
+			public void onTick(long millisUntilFinished) {
+				setCurrentTime(millisUntilFinished);
+				showElapsedTime(millisUntilFinished);
+			}
+
+			public void onFinish() {
+				showElapsedTime(0);
+				Toast.makeText(FullscreenActivity.this, "Time's Up!",
+						Toast.LENGTH_SHORT).show();
+			}
+		};
+
+		showElapsedTime(getCurrentTime());
+		Log.d("timer", "Clock reset");
+		Log.d("timer", "Time: " + getAsString(getCurrentTime()));
 	}
 
 	/**
 	 * Start the count-down.
 	 */
-	public void startClock() {
+	public void startClockAt(long time) {
+		resetClock(time);
+		start();
+	}
+
+	/**
+	 * Reset the clock to the base time and start it.
+	 */
+	private void resetAndStartClock() {
+		resetClock(getStartTime());
+		start();
+	}
+
+	/**
+	 * Resume the clock from the last paused time.
+	 */
+	private void resumeClock() {
+		resetClock(getCurrentTime());
+		start();
+	}
+
+	/**
+	 * Start.
+	 */
+	private void start() {
 		timer.start();
+		isStopped = false;
+		Log.d("timer", "Clock started.");
+		Log.d("timer", "Time starting: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -326,6 +396,9 @@ public class FullscreenActivity extends Activity {
 	 */
 	public void stopClock() {
 		timer.cancel();
+		isStopped = true;
+		Log.d("timer", "Clock stopped.");
+		Log.d("timer", "Time left: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -338,6 +411,20 @@ public class FullscreenActivity extends Activity {
 		int minutes = seconds / 60;
 		seconds = seconds % 60;
 		chronometer.setText(String.format("%d:%02d", minutes, seconds));
+	}
+
+	/**
+	 * Return the passed time as a string format of MM:SS.
+	 * 
+	 * @param milli
+	 * @return String - time
+	 */
+	private String getAsString(long milli) {
+		int seconds = (int) (milli / 1000);
+		int minutes = seconds / 60;
+		seconds = seconds % 60;
+
+		return String.format(Locale.US, "%d:%02d", minutes, seconds);
 	}
 
 	@Override
