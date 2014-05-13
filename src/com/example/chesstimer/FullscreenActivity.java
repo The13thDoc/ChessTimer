@@ -64,13 +64,12 @@ public class FullscreenActivity extends Activity {
 
 		{// Chronometer
 			chronometer = (Chronometer) findViewById(R.id.chronometer1);
-			resetClock();
+			chronometer.setText(getAsString(getStartTime()));
 
 			chronometer.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
 					stopClock();
-
 					changeTime(v);
 					return true;
 				}
@@ -92,6 +91,7 @@ public class FullscreenActivity extends Activity {
 			buttonOne.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
+					stopClock();
 					changeText(v);
 					return true;
 				}
@@ -113,6 +113,7 @@ public class FullscreenActivity extends Activity {
 			buttonTwo.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
+					stopClock();
 					changeText(v);
 					return true;
 				}
@@ -129,10 +130,7 @@ public class FullscreenActivity extends Activity {
 		Button b = (Button) v;
 		b.setEnabled(false);
 
-		if (!isStopped) {
-			resetClock();
-		}
-		startClock();
+		resetAndStartClock();
 	}
 
 	/**
@@ -161,11 +159,10 @@ public class FullscreenActivity extends Activity {
 				int second = timeInput.getCurrentMinute();
 
 				if (v.getId() == R.id.chronometer1) {
-					setTime((Convert.getMilli(minute))
+					setStartTime((Convert.getMilli(minute))
 							+ (Convert.getMilliFromSeconds(second)));
 
-					resetClock();
-					startClock();
+					resetAndStartClock();
 				}
 			}
 		});
@@ -173,7 +170,7 @@ public class FullscreenActivity extends Activity {
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						startClock();
+						resumeClock();
 					}
 				});
 
@@ -206,13 +203,14 @@ public class FullscreenActivity extends Activity {
 				if (v.getId() == R.id.button2) {
 					buttonTwo.setText(value);
 				}
+				resumeClock();
 			}
 		});
 
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
+						resumeClock();
 					}
 				});
 
@@ -224,7 +222,7 @@ public class FullscreenActivity extends Activity {
 	 * 
 	 * @param time
 	 */
-	private void setTime(long time) {
+	private void setStartTime(long time) {
 		tickerTime = time;
 	}
 
@@ -256,19 +254,6 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
-	 * Return the remaining time as M:SS.
-	 * 
-	 * @return
-	 */
-	private String getRemainingTimeAsString() {
-		int seconds = (int) (getCurrentTime() / 1000);
-		int minutes = seconds / 60;
-		seconds = seconds % 60;
-
-		return String.format(Locale.US, "%d:%02d", minutes, seconds);
-	}
-
-	/**
 	 * Reset the clock to the specified time.
 	 */
 	public void resetClock() {
@@ -276,7 +261,7 @@ public class FullscreenActivity extends Activity {
 			stopClock();
 		}
 		setCurrentTime(getStartTime());
-		timer = new CountDownTimer(getStartTime(), 1000) {
+		timer = new CountDownTimer(getCurrentTime(), 1000) {
 
 			public void onTick(long millisUntilFinished) {
 				setCurrentTime(millisUntilFinished);
@@ -302,6 +287,7 @@ public class FullscreenActivity extends Activity {
 		if (timer != null || !isStopped) {
 			stopClock();
 		}
+		setCurrentTime(time);
 		timer = new CountDownTimer(time, 1000) {
 
 			public void onTick(long millisUntilFinished) {
@@ -324,12 +310,35 @@ public class FullscreenActivity extends Activity {
 	/**
 	 * Start the count-down.
 	 */
-	public void startClock() {
+	public void startClockAt(long time) {
+		resetClock(time);
+		start();
+	}
+
+	/**
+	 * Reset the clock to the base time and start it.
+	 */
+	private void resetAndStartClock() {
+		resetClock(getStartTime());
+		start();
+	}
+
+	/**
+	 * Resume the clock from the last paused time.
+	 */
+	private void resumeClock() {
 		resetClock(getCurrentTime());
+		start();
+	}
+
+	/**
+	 * Start.
+	 */
+	private void start() {
 		timer.start();
 		isStopped = false;
 		Log.d("timer", "Clock started.");
-		Log.d("timer", "Time starting: " + getRemainingTimeAsString());
+		Log.d("timer", "Time starting: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -339,7 +348,7 @@ public class FullscreenActivity extends Activity {
 		timer.cancel();
 		isStopped = true;
 		Log.d("timer", "Clock stopped.");
-		Log.d("timer", "Time left: " + getRemainingTimeAsString());
+		Log.d("timer", "Time left: " + getAsString(getCurrentTime()));
 	}
 
 	/**
