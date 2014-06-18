@@ -7,10 +7,13 @@ import com.example.chesstimer.util.SystemUiHider;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,9 +62,20 @@ public class FullscreenActivity extends Activity {
 	private Player playerOne;
 	private Player playerTwo;
 
+	protected WakeLock mWakeLock;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		/*
+		 * This code together with the one in onDestroy() will make the screen
+		 * be always on until this Activity gets destroyed.
+		 */
+		final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK,
+				"My Tag");
+		this.mWakeLock.acquire();
 
 		setContentView(R.layout.activity_fullscreen);
 
@@ -159,7 +173,15 @@ public class FullscreenActivity extends Activity {
 				}
 			});
 		}
+
 	}
+
+	
+	 @Override
+	 public void onDestroy() {
+	 this.mWakeLock.release();
+	 super.onDestroy();
+	 }
 
 	/**
 	 * Upon click of a "player" button.
