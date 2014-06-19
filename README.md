@@ -9,7 +9,7 @@ This Android application is *not* yet available on the Android market.
 If able, you are free to fork the [git repo](https://github.com/The13thDoc/ChessTimer), build the app, and install to your phone.
 
 ##Tutorial
-Check out the **[tutoral](https://github.com/The13thDoc/ChessTimer/wiki)** for a quick run-though.
+Check out the **[tutoral](https://github.com/The13thDoc/ChessTimer/wiki/Tutorial#tutorial)** for a quick run-though.
 
 -----
 **Screenshot**
