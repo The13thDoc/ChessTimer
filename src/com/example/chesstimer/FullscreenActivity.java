@@ -9,6 +9,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -22,7 +25,6 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -56,6 +58,7 @@ public class FullscreenActivity extends Activity {
 	private AlertDialog.Builder alert;
 	private EditText input;
 	private TimePicker timeInput;
+	private Ringtone buzzer;
 
 	private boolean gameOn = false;
 
@@ -63,10 +66,20 @@ public class FullscreenActivity extends Activity {
 	private Player playerTwo;
 
 	protected WakeLock mWakeLock;
+	private View mainView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		try {
+			Uri notification = RingtoneManager
+					.getDefaultUri(RingtoneManager.TYPE_ALARM);
+			buzzer = RingtoneManager.getRingtone(getApplicationContext(),
+					notification);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		/*
 		 * This code together with the one in onDestroy() will make the screen
@@ -78,6 +91,7 @@ public class FullscreenActivity extends Activity {
 		this.mWakeLock.acquire();
 
 		setContentView(R.layout.activity_fullscreen);
+		mainView = findViewById(R.id.main_background);
 
 		{// Players
 			playerOne = new Player("Player 1");
@@ -91,7 +105,9 @@ public class FullscreenActivity extends Activity {
 			chronometer.setOnLongClickListener(new OnLongClickListener() {
 				@Override
 				public boolean onLongClick(View v) {
-					stopClock();
+					if (timer != null) {
+						stopClock();
+					}
 					changeTime(v);
 					return true;
 				}
@@ -176,12 +192,13 @@ public class FullscreenActivity extends Activity {
 
 	}
 
-	
-	 @Override
-	 public void onDestroy() {
-	 this.mWakeLock.release();
-	 super.onDestroy();
-	 }
+	@Override
+	public void onDestroy() {
+		stopClock();
+		this.mWakeLock.release();
+		FullscreenActivity.this.finish();
+		super.onDestroy();
+	}
 
 	/**
 	 * Upon click of a "player" button.
@@ -331,12 +348,12 @@ public class FullscreenActivity extends Activity {
 	/**
 	 * Reset the clock to the specified time.
 	 */
-	public void resetClock() {
+	public void resetClock(long time) {
 		if (timer != null || !isStopped) {
 			stopClock();
 		}
-		setCurrentTime(getStartTime());
-		timer = new CountDownTimer(getCurrentTime(), 1000) {
+		setCurrentTime(time);
+		timer = new CountDownTimer(time, 500) {
 
 			public void onTick(long millisUntilFinished) {
 				setCurrentTime(millisUntilFinished);
@@ -345,8 +362,8 @@ public class FullscreenActivity extends Activity {
 
 			public void onFinish() {
 				showElapsedTime(0);
-				Toast.makeText(FullscreenActivity.this, "Time's Up!",
-						Toast.LENGTH_SHORT).show();
+				playAlarm();
+				mainView.setBackgroundResource(R.color.back_overlay_red);
 			}
 		};
 
@@ -356,30 +373,17 @@ public class FullscreenActivity extends Activity {
 	}
 
 	/**
-	 * Reset the clock to the specified time.
+	 * Sound the alarm.
 	 */
-	public void resetClock(long time) {
-		if (timer != null || !isStopped) {
-			stopClock();
-		}
-		setCurrentTime(time);
-		timer = new CountDownTimer(time, 1000) {
+	private void playAlarm() {
+		buzzer.play();
+	}
 
-			public void onTick(long millisUntilFinished) {
-				setCurrentTime(millisUntilFinished);
-				showElapsedTime(millisUntilFinished);
-			}
-
-			public void onFinish() {
-				showElapsedTime(0);
-				Toast.makeText(FullscreenActivity.this, "Time's Up!",
-						Toast.LENGTH_SHORT).show();
-			}
-		};
-
-		showElapsedTime(getCurrentTime());
-		Log.d("timer-log", "Clock reset");
-		Log.d("timer-log", "Time: " + getAsString(getCurrentTime()));
+	/**
+	 * Stop the alarm.
+	 */
+	private void stopAlarm() {
+		buzzer.stop();
 	}
 
 	/**
@@ -410,6 +414,7 @@ public class FullscreenActivity extends Activity {
 	 * Start.
 	 */
 	private void start() {
+		mainView.setBackgroundResource(R.color.back_overlay);
 		timer.start();
 		isStopped = false;
 		Log.d("timer-log", "Clock started.");
@@ -420,6 +425,7 @@ public class FullscreenActivity extends Activity {
 	 * Cancel the count-down.
 	 */
 	public void stopClock() {
+		stopAlarm();
 		timer.cancel();
 		isStopped = true;
 		Log.d("timer-log", "Clock stopped.");
@@ -514,14 +520,4 @@ public class FullscreenActivity extends Activity {
 			return seconds * 1000;
 		}
 	}
-
-	// /**
-	// * Display a message to the screen.
-	// *
-	// * @param message
-	// */
-	// private void alert(String message) {
-	// Toast.makeText(FullscreenActivity.this, message, Toast.LENGTH_SHORT)
-	// .show();
-	// }
 }

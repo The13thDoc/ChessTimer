@@ -4,5 +4,6 @@
     <color name="button_unpressed">#4c8bff</color>
     <color name="button_pressed">#dcedcf</color>
     <color name="black">#000000</color>
+    <color name="back_overlay_red">#FF0000</color>
 
 </resources>
