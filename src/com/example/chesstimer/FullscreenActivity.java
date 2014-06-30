@@ -17,7 +17,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -25,6 +24,7 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.ToggleButton;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -49,6 +49,7 @@ public class FullscreenActivity extends Activity {
 	private Chronometer chronometer;
 	private Button buttonOne;
 	private Button buttonTwo;
+	private ToggleButton buttonPause;
 
 	private CountDownTimer timer;
 	private long tickerTime = Convert.getMilli(5);
@@ -190,6 +191,28 @@ public class FullscreenActivity extends Activity {
 			});
 		}
 
+		{// Pause button
+			buttonPause = (ToggleButton) findViewById(R.id.buttonPause);
+			buttonPause.setChecked(true);
+
+			buttonPause.setOnClickListener(new View.OnClickListener() {
+
+				@Override
+				public void onClick(View arg0) {
+					if (buttonPause.isChecked()) {
+						if (timer != null) {
+							stopClock();
+						}
+					} else {
+						if (timer != null) {
+							resumeClock();
+						}
+					}
+				}
+
+			});
+		}
+
 	}
 
 	@Override
@@ -229,7 +252,6 @@ public class FullscreenActivity extends Activity {
 	 * @param v
 	 */
 	public void changeTime(final View v) {
-		Log.d("timer-log", "Changing time...");
 		alert = new AlertDialog.Builder(this);
 
 		alert.setTitle("Ticker");
@@ -253,6 +275,7 @@ public class FullscreenActivity extends Activity {
 							+ (Convert.getMilliFromSeconds(second)));
 
 					resetAndStartClock();
+					stopClock();
 				}
 			}
 		});
@@ -260,7 +283,6 @@ public class FullscreenActivity extends Activity {
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						resumeClock();
 					}
 				});
 
@@ -295,14 +317,12 @@ public class FullscreenActivity extends Activity {
 					playerTwo.setName(value);
 					buttonTwo.setText(playerTwo.getName());
 				}
-				resumeClock();
 			}
 		});
 
 		alert.setNegativeButton("Cancel",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						resumeClock();
 					}
 				});
 
@@ -368,8 +388,6 @@ public class FullscreenActivity extends Activity {
 		};
 
 		showElapsedTime(getCurrentTime());
-		Log.d("timer-log", "Clock reset");
-		Log.d("timer-log", "Time: " + getAsString(getCurrentTime()));
 	}
 
 	/**
@@ -416,9 +434,9 @@ public class FullscreenActivity extends Activity {
 	private void start() {
 		mainView.setBackgroundResource(R.color.back_overlay);
 		timer.start();
+
 		isStopped = false;
-		Log.d("timer-log", "Clock started.");
-		Log.d("timer-log", "Time starting: " + getAsString(getCurrentTime()));
+		buttonPause.setChecked(false);
 	}
 
 	/**
@@ -427,9 +445,9 @@ public class FullscreenActivity extends Activity {
 	public void stopClock() {
 		stopAlarm();
 		timer.cancel();
+
 		isStopped = true;
-		Log.d("timer-log", "Clock stopped.");
-		Log.d("timer-log", "Time left: " + getAsString(getCurrentTime()));
+		buttonPause.setChecked(true);
 	}
 
 	/**

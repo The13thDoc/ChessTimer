@@ -37,6 +37,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class id {
         public static final int button1=0x7f080001;
         public static final int button2=0x7f080002;
+        public static final int buttonPause=0x7f080004;
         public static final int chronometer1=0x7f080003;
         public static final int main_background=0x7f080000;
     }
@@ -49,6 +50,8 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static final int button_2=0x7f060002;
         public static final int button_pause=0x7f060004;
         public static final int default_time=0x7f060005;
+        public static final int isPaused=0x7f060007;
+        public static final int pause=0x7f060006;
         public static final int timer=0x7f060003;
     }
     public static final class style {
