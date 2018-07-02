@@ -3,12 +3,12 @@ Chess Timer
 
 An Android app designed to keep track of a player's time per turn. Alerts the players when their time has expired, unless a move has been made and the clock has been reset manually.
 
-##AVAILABILITY
+## AVAILABILITY
 This Android application is *not* yet available on the Android market. 
 
 If able, you are free to fork the [git repo](https://github.com/The13thDoc/ChessTimer), build the app, and install to your phone.
 
-##Tutorial
+## Tutorial
 Check out the **[tutoral](https://github.com/The13thDoc/ChessTimer/wiki/Tutorial#tutorial)** for a quick run-though.
 
 -----
